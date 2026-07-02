@@ -1,0 +1,15 @@
+{
+  "template": "storefront",
+  "description": "Selling products with cart + checkout.",
+  "preflight": "If products already live on Shopify, STOP — a theme redesign or headless Shopify (checkout stays on Shopify) beats rebuilding commerce on Stripe. This recipe is for stores starting from zero.",
+  "defaultFeatures": ["db", "payments", "email", "analytics"],
+  "optionalFeatures": ["auth"],
+  "structure": {
+    "pages": ["/ (featured products)", "/products", "/products/[slug]", "/cart", "checkout via Stripe Checkout (hosted — don't build your own)"],
+    "api": ["/api/webhooks/stripe (order confirmation -> db + Resend receipt)"],
+    "notes": [
+      "Products/orders in Supabase; Stripe Checkout owns the payment page",
+      "auth optional: guest checkout is the v1 default"
+    ]
+  }
+}

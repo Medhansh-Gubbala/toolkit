@@ -1,0 +1,11 @@
+{
+  "template": "landing",
+  "description": "One-page site selling/explaining one thing. Success = one visitor action.",
+  "defaultFeatures": ["analytics"],
+  "optionalFeatures": ["email"],
+  "note": "email = waitlist/contact capture via Resend. No auth, no db, no payments — a landing page that needs those is a SaaS; use that recipe.",
+  "structure": {
+    "pages": ["/ (single page)"],
+    "sections": ["hero (the one promise + the one CTA)", "problem/solution", "proof (real, or omit — no fake testimonials)", "final CTA", "minimal footer"]
+  }
+}

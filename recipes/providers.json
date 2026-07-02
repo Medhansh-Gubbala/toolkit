@@ -1,0 +1,81 @@
+{
+  "$comment": "Shared provider glue for all recipes. REPLACE placeholders are filled by the owner, never with real values by the agent. mcp:null = no official MCP server worth wiring (verify before assuming that's still true).",
+  "auth": {
+    "provider": "Clerk",
+    "packages": ["@clerk/nextjs"],
+    "env": [
+      { "name": "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", "secret": false },
+      { "name": "CLERK_SECRET_KEY", "secret": true }
+    ],
+    "mcp": null,
+    "glue": [
+      "Wrap app layout in <ClerkProvider>",
+      "middleware.ts with clerkMiddleware() protecting app routes, not marketing pages",
+      "Catch-all sign-in/sign-up routes per Clerk Next.js quickstart"
+    ]
+  },
+  "db": {
+    "provider": "Supabase",
+    "packages": ["@supabase/supabase-js", "@supabase/ssr"],
+    "env": [
+      { "name": "NEXT_PUBLIC_SUPABASE_URL", "secret": false },
+      { "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY", "secret": false },
+      { "name": "SUPABASE_SERVICE_ROLE_KEY", "secret": true, "note": "server-only, never NEXT_PUBLIC" }
+    ],
+    "mcp": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase@latest", "--project-ref=REPLACE_PROJECT_REF"],
+      "env": { "SUPABASE_ACCESS_TOKEN": "REPLACE" }
+    },
+    "glue": [
+      "lib/supabase/server.ts + client.ts helpers (@supabase/ssr pattern)",
+      "RLS ON for every table; policies written in the same migration as the table (schema changes are an approval gate)"
+    ]
+  },
+  "payments": {
+    "provider": "Stripe",
+    "packages": ["stripe"],
+    "env": [
+      { "name": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY", "secret": false },
+      { "name": "STRIPE_SECRET_KEY", "secret": true },
+      { "name": "STRIPE_WEBHOOK_SECRET", "secret": true }
+    ],
+    "mcp": {
+      "command": "npx",
+      "args": ["-y", "@stripe/mcp", "--tools=all"],
+      "env": { "STRIPE_SECRET_KEY": "REPLACE" }
+    },
+    "glue": [
+      "app/api/webhooks/stripe/route.ts with constructEvent signature verification — never trust an unverified webhook",
+      "lib/stripe.ts checkout-session helper",
+      "Start in test mode; live keys only at /deploy time"
+    ]
+  },
+  "email": {
+    "provider": "Resend",
+    "packages": ["resend"],
+    "env": [{ "name": "RESEND_API_KEY", "secret": true }],
+    "mcp": null,
+    "glue": [
+      "lib/email.ts send helper",
+      "Domain verification (SPF/DKIM) is manual in Resend dashboard before real sends"
+    ]
+  },
+  "analytics": {
+    "provider": "PostHog",
+    "packages": ["posthog-js"],
+    "env": [
+      { "name": "NEXT_PUBLIC_POSTHOG_KEY", "secret": false },
+      { "name": "NEXT_PUBLIC_POSTHOG_HOST", "secret": false, "default": "https://us.i.posthog.com" }
+    ],
+    "mcp": {
+      "type": "http",
+      "url": "https://mcp.posthog.com/mcp",
+      "headers": { "Authorization": "Bearer REPLACE_POSTHOG_PERSONAL_API_KEY" }
+    },
+    "glue": [
+      "app/providers.tsx PostHogProvider with pageview capture",
+      "One conversion event named after SPEC.md's success metric — that's the number that matters"
+    ]
+  }
+}

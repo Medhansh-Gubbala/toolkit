@@ -1,0 +1,14 @@
+{
+  "template": "saas",
+  "description": "App with accounts and billing.",
+  "defaultFeatures": ["auth", "db", "payments", "analytics"],
+  "optionalFeatures": ["email"],
+  "structure": {
+    "pages": ["/ (marketing)", "/pricing", "/dashboard (auth-gated shell)", "/settings (plan + account)"],
+    "api": ["/api/webhooks/stripe"],
+    "notes": [
+      "Marketing pages public, app routes behind Clerk middleware",
+      "Billing state lives in db, updated ONLY by the Stripe webhook — never trust the client"
+    ]
+  }
+}
